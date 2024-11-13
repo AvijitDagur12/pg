@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <style>
+    /* General Styles */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #e9eff1; /* Light background similar to Facebook */
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      position: relative;
+    }
+
+    /* Login container */
+    .login-container {
+      background-color: white;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px; /* Max width for desktops */
+      position: fixed;
+    }
+
+    /* Logo styling */
+    .logo {
+      display: block;
+      margin: 0 auto 20px; /* Center the logo and add space below it */
+      max-width: 120px; /* Adjust this value to fit your logo */
+      height: auto;
+    }
+
+    /* Heading styling */
+    .login-container h2 {
+      text-align: center;
+      color: #1877f2; /* Facebook blue */
+      font-size: 2rem;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+
+    /* Input field styling */
+    .input-field {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+
+    .input-field:focus {
+      border-color: #1877f2; /* Blue border on focus */
+    }
+
+    /* Login button styling */
+    .login-button {
+      background-color: #1877f2; /* Facebook blue */
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 100%;
+      font-size: 1.1rem;
+      box-sizing: border-box;
+    }
+
+    .login-button:hover {
+      background-color: #165e9e;
+    }
+
+    /* Mobile responsive styles */
+    @media (max-width: 768px) {
+      .login-container {
+        max-width: 90%; /* More flexible width for mobile */
+        padding: 20px;
+      }
+
+      .login-container h2 {
+        font-size: 1.5rem;  /* Adjust heading size on mobile */
+      }
+
+      .input-field {
+        font-size: 1rem;  /* Adjust input field size */
+        padding: 12px;  /* Adjust padding for mobile */
+      }
+
+      .login-button {
+        font-size: 1rem;  /* Adjust button font size */
+        padding: 14px;  /* Adjust button padding for better touch interaction */
+      }
+    }
+
+    /* Additional Styles for Very Small Screens */
+    @media (max-width: 480px) {
+      .login-container h2 {
+        font-size: 1.2rem;  /* Smaller heading font */
+      }
+
+      .input-field {
+        font-size: 0.9rem; /* Smaller font size for input fields */
+        padding: 10px;  /* Less padding for very small screens */
+      }
+
+      .login-button {
+        font-size: 0.9rem;  /* Smaller button text for very small screens */
+        padding: 12px;  /* Adjust padding */
+      }
+    }
+
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <!-- Logo -->
+    <img src="./krishna.jpg" alt="Logo" class="logo" />  <!-- Replace with your logo image path -->
+    
+    <h2>Login Here</h2>
+    <input id="email" type="email" class="input-field" placeholder="Email Address" />
+    <input id="password" type="password" class="input-field" placeholder="Password" />
+    <button id="loginButton" class="login-button">Login</button>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+    import { getFirestore } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyAmbVdApgwrXfvRpjgXCXXld3_L1JG69Sg",
+      authDomain: "newproject-ec61c.firebaseapp.com",
+      projectId: "newproject-ec61c",
+      storageBucket: "newproject-ec61c.firebasestorage.app",
+      messagingSenderId: "645011924666",
+      appId: "1:645011924666:web:abc631b5c54cdca7930483",
+      measurementId: "G-4YVB0Y6CE7"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Function to handle login
+    document.getElementById("loginButton").addEventListener("click", async () => {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      try {
+        // Sign in with Firebase Authentication
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        console.log("Logged in as:", userCredential.user.email);
+
+        // Redirect to the attendance page after successful login
+        window.location.href = "attendance.html";  // Change to your attendance page's URL
+      } catch (error) {
+        alert("Incorrect email or password.");
+      }
+    });
+  </script>
+</body>
+</html>

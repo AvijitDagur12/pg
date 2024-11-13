@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advance Money Registration</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #f7f7f7;
+      margin: 0;
+    }
+
+    .form-container {
+      background-color: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .form-container h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: #4CAF50;
+    }
+
+    .button {
+      width: 100%;
+      padding: 12px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      margin-bottom: 10px;
+    }
+
+    .button:hover {
+      background-color: #45a049;
+    }
+
+    .view-button {
+      width: 100%;
+      padding: 12px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .view-button:hover {
+      background-color: #0056b3;
+    }
+
+    .error-message {
+      color: red;
+      text-align: center;
+    }
+
+    .success-message {
+      color: green;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="form-container">
+    <h2>Register Advance Money</h2>
+
+    <!-- Input Form -->
+    <input type="text" id="memberName" class="input-field" placeholder="Enter Member Name" required>
+    <input type="text" id="memberId" class="input-field" placeholder="Enter Unique Member ID" required>
+    <input type="number" id="advanceMoney" class="input-field" placeholder="Enter Advance Money" required>
+    <button class="button" id="submitButton">Save Advance Money</button>
+
+    <!-- View Advance Money Button -->
+    <button class="view-button" id="viewAdvanceButton">Advance - View</button>
+
+    <div id="message" class="error-message"></div>
+    <div id="successMessage" class="success-message"></div>
+  </div>
+
+  <!-- Firebase Script -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+    import { getAuth } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-analytics.js";
+
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyAmbVdApgwrXfvRpjgXCXXld3_L1JG69Sg",
+      authDomain: "newproject-ec61c.firebaseapp.com",
+      projectId: "newproject-ec61c",
+      storageBucket: "newproject-ec61c.appspot.com",
+      messagingSenderId: "645011924666",
+      appId: "1:645011924666:web:abc631b5c54cdca7930483",
+      measurementId: "G-4YVB0Y6CE7"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    getAnalytics(app);
+
+    // Function to save the advance money to Firestore
+    async function saveAdvanceMoney(userId, memberId, advanceMoney) {
+      try {
+        // Reference to Firestore collection
+        const docRef = doc(db, `advance-money/advance/advance-moneyy/${userId}/advance-money/${memberId}`);
+        
+        // Set data in Firestore
+        await setDoc(docRef, {
+          advanceMoney: advanceMoney,
+          timestamp: new Date(),
+        });
+        
+        document.getElementById("successMessage").innerText = "Advance Money saved successfully!";
+        document.getElementById("message").innerText = ""; // Clear error message if any
+        clearInputs();
+      } catch (error) {
+        console.error("Error saving advance money: ", error);
+        document.getElementById("message").innerText = "Error saving advance money: " + error.message;
+        document.getElementById("successMessage").innerText = "";
+      }
+    }
+
+    // Get user authentication status
+    async function getUserId() {
+      const user = auth.currentUser;
+      if (user) {
+        return user.uid; // return authenticated user's ID
+      } else {
+        document.getElementById("message").innerText = "User not authenticated.";
+        return null;
+      }
+    }
+
+    // Function to handle form submission
+    document.getElementById("submitButton").addEventListener("click", async () => {
+      const memberName = document.getElementById("memberName").value;
+      const memberId = document.getElementById("memberId").value;
+      const advanceMoney = parseFloat(document.getElementById("advanceMoney").value);
+
+      if (!memberName || !memberId || isNaN(advanceMoney) || advanceMoney <= 0) {
+        document.getElementById("message").innerText = "Please fill all the fields correctly.";
+        return;
+      }
+
+      const userId = await getUserId();
+      if (userId) {
+        saveAdvanceMoney(userId, memberId, advanceMoney);
+      }
+    });
+
+    // Function to clear input fields
+    function clearInputs() {
+      document.getElementById("memberName").value = '';
+      document.getElementById("memberId").value = '';
+      document.getElementById("advanceMoney").value = '';
+    }
+
+    // View Advance Money Button - Redirect to view advance money page
+    document.getElementById("viewAdvanceButton").addEventListener("click", () => {
+      window.location.href = "fetch-advance.html"; // Update with the actual page URL to view advance money
+    });
+  </script>
+
+</body>
+</html>

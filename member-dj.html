@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Member Attendance</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #dcdcff;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 30px;
+      color: #081155;
+      text-align: center;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      overflow-x: auto;
+      display: block;
+    }
+
+    th, td {
+      border: 3px solid #000000;
+      padding: 12px;
+      text-align: center;
+      font-size: 1rem;
+      font-weight: bold;
+    }
+
+    th {
+      background-color: #e9ff27;
+      color: rgb(0, 0, 0);
+    }
+
+    td .checkbox-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    td input {
+      width: 30px;
+      height: 30px;
+      margin: 5px;
+      cursor: pointer;
+    }
+
+    td .label {
+      font-size: 0.9rem;
+      font-weight: bold;
+    }
+
+    td .total {
+      font-weight: bold;
+      color: #ffffff;
+    }
+
+    /* Custom Background Color for Day and Night Checkboxes */
+    .day-checkbox {
+      background-color: #c8e6c9; /* Light green for Day */
+    }
+
+    .night-checkbox {
+      background-color: #d1c4e9; /* Light purple for Night */
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+      table {
+        font-size: 0.9rem;
+      }
+
+      td input {
+        width: 30px;
+        height: 30px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      table {
+        font-size: 0.85rem;
+      }
+
+      td input {
+        width: 35px;
+        height: 35px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      table {
+        font-size: 0.8rem;
+      }
+
+      td input {
+        width: 30px;
+        height: 30px;
+      }
+
+      th, td {
+        padding: 8px;
+      }
+
+      td .checkbox-container {
+        flex-direction: column;
+      }
+
+      td .label {
+        font-size: 0.8rem;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+  <h1>Meal Database - November 2024</h1>
+
+  <!-- Table for Member Attendance -->
+  <table id="attendanceTable">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <!-- Dynamically generate date columns here -->
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Dynamic rows for each member will go here -->
+    </tbody>
+  </table>
+
+  <!-- Firebase SDKs -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyAmbVdApgwrXfvRpjgXCXXld3_L1JG69Sg",
+      authDomain: "newproject-ec61c.firebaseapp.com",
+      projectId: "newproject-ec61c",
+      storageBucket: "newproject-ec61c.firebasestorage.app",
+      messagingSenderId: "645011924666",
+      appId: "1:645011924666:web:abc631b5c54cdca7930483",
+      measurementId: "G-4YVB0Y6CE7"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const attendanceTable = document.getElementById("attendanceTable");
+
+    // Get the current month number
+    const currentMonth = new Date().getMonth() + 1; // January is 0, so we add 1 to get the actual month number
+    const totalDaysInMonth = new Date(new Date().getFullYear(), currentMonth, 0).getDate(); // Get total days in the current month
+
+    // Updated member names list
+    const members = ["Avijit Dagur", "Priyabrata Bairagi", "Pritam Kapas", "Tanmoy Das", "Biprajit Chowdhury", "Tanmoy Mondal", "Biswanath Das", "Sayan Kapas", "Sabuj Ghosh"];
+
+    // The path where attendance data will be saved/fetched from Firestore
+    const firestorePath = "/attendancee/attend/attend/nT1Wfgrakgvw5gDWskS2";
+
+    // Function to create the table header with dates
+    function generateTableHeader() {
+      let headerRow = '<th>Name</th>';
+      for (let i = 1; i <= totalDaysInMonth; i++) {
+        headerRow += `<th>${i}</th>`; // Column for each day
+      }
+      headerRow += `<th>Total</th>`; // Total column
+      attendanceTable.querySelector('thead').innerHTML = headerRow;
+    }
+
+    // Function to generate rows for members
+    function generateMemberRows() {
+      let rows = '';
+      members.forEach(member => {
+        rows += `<tr>
+                  <td>${member}</td>`; 
+
+        // Create a column for each day in the month
+        for (let i = 1; i <= totalDaysInMonth; i++) {
+          rows += `<td>
+                     <div class="checkbox-container">
+                       <input type="checkbox" class="day-checkbox" data-member="${member}" data-day="${i}" data-shift="day" /> 
+                       <label class="label">D</label>
+                       <input type="checkbox" class="night-checkbox" data-member="${member}" data-day="${i}" data-shift="night" /> 
+                       <label class="label">N</label>
+                     </div>
+                   </td>`; 
+        }
+
+        // Add a column for the total number of present days
+        rows += `<td class="total" id="total-${member}">0</td>
+                </tr>`;
+      });
+      attendanceTable.querySelector('tbody').innerHTML = rows;
+    }
+
+    // Function to fetch and load attendance data from Firestore
+    async function loadAttendanceData() {
+      const docRef = doc(db, firestorePath);
+      const docSnap = await getDoc(docRef);
+
+      // If the document exists, populate the table with data
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        const attendance = data.attendance || {};
+
+        // Loop through the attendance and set checkbox states
+        members.forEach(member => {
+          for (let day = 1; day <= totalDaysInMonth; day++) {
+            const dayCheckbox = document.querySelector(`input[data-member="${member}"][data-day="${day}"][data-shift="day"]`);
+            const nightCheckbox = document.querySelector(`input[data-member="${member}"][data-day="${day}"][data-shift="night"]`);
+
+            if (attendance[member] && attendance[member][day]) {
+              if (attendance[member][day].day === "Present") {
+                dayCheckbox.checked = true;
+              }
+              if (attendance[member][day].night === "Present") {
+                nightCheckbox.checked = true;
+              }
+            }
+          }
+        });
+
+        // Set total present days (both Day and Night combined)
+        members.forEach(member => {
+          let presentDays = 0;
+          for (let day = 1; day <= totalDaysInMonth; day++) {
+            const dayCheckbox = document.querySelector(`input[data-member="${member}"][data-day="${day}"][data-shift="day"]`);
+            const nightCheckbox = document.querySelector(`input[data-member="${member}"][data-day="${day}"][data-shift="night"]`);
+
+            if (dayCheckbox.checked) presentDays++;
+            if (nightCheckbox.checked) presentDays++;
+          }
+          document.getElementById(`total-${member}`).textContent = presentDays;
+        });
+      }
+    }
+
+    // Initialize the page and load attendance data
+    function initializePage() {
+      generateTableHeader();
+      generateMemberRows();
+      loadAttendanceData(); // Fetch and load data from Firestore on page load
+    }
+
+    initializePage();
+  </script>
+
+</body>
+</html>

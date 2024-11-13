@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Members and Advance Money</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #f7f7f7;
+      margin: 0;
+    }
+
+    .members-container {
+      background-color: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 900px;
+      margin-top: 20px;
+      overflow-x: auto;
+    }
+
+    .members-container h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    /* Member Box Styles */
+    .member-box {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 15px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      align-items: center;
+    }
+
+    .member-info {
+      display: flex;
+      align-items: center;
+    }
+
+    .member-img {
+      width: 60px;
+      height: 60px;
+      background-size: cover;
+      background-position: center;
+      border-radius: 50%;
+      margin-right: 15px;
+    }
+
+    .member-name {
+      font-size: 1.1rem;
+      font-weight: bold;
+    }
+
+    .unique-id {
+      font-size: 0.9rem;
+      color: #777;
+    }
+
+    .right-side {
+      font-size: 1.2rem;
+      color: #333;
+      text-align: right;
+    }
+
+    /* Responsive Layout */
+    @media (max-width: 768px) {
+      .member-box {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .member-info {
+        margin-bottom: 10px;
+      }
+
+      .right-side {
+        text-align: left;
+        margin-top: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Members Display Section -->
+  <div class="members-container" id="members-container">
+    <h2>Members and Their Advance Money</h2>
+    <!-- Member Boxes will be dynamically inserted here -->
+  </div>
+
+  <!-- Firebase Script -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-analytics.js";
+
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyAmbVdApgwrXfvRpjgXCXXld3_L1JG69Sg",
+      authDomain: "newproject-ec61c.firebaseapp.com",
+      projectId: "newproject-ec61c",
+      storageBucket: "newproject-ec61c.appspot.com",
+      messagingSenderId: "645011924666",
+      appId: "1:645011924666:web:abc631b5c54cdca7930483",
+      measurementId: "G-4YVB0Y6CE7"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    getAnalytics(app);
+
+    // Example members data (these will be dynamically displayed in the HTML)
+    const members = [
+      { id: "skm10", name: "John Doe", img: "https://via.placeholder.com/60" },
+      { id: "skm11", name: "Jane Smith", img: "https://via.placeholder.com/60" },
+      { id: "skm12", name: "Mark Johnson", img: "https://via.placeholder.com/60" },
+      { id: "skm13", name: "Emily Davis", img: "https://via.placeholder.com/60" },
+      { id: "skm14", name: "Michael Lee", img: "https://via.placeholder.com/60" },
+      { id: "skm15", name: "Sarah Brown", img: "https://via.placeholder.com/60" },
+      { id: "skm16", name: "David White", img: "https://via.placeholder.com/60" },
+      { id: "skm17", name: "Laura Green", img: "https://via.placeholder.com/60" },
+    ];
+
+    // Function to fetch advance money for a specific member
+    async function fetchAdvanceMoney(memberId) {
+      const userId = await getUserId();
+      if (!userId) return "Not Available"; // Return if no user is authenticated
+
+      const docRef = doc(db, `advance-money/advance/advance-moneyy/${userId}/advance-money/${memberId}`);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        return docSnap.data().advanceMoney;
+      } else {
+        return "Not Available"; // Return a default message if no data found
+      }
+    }
+
+    // Get authenticated user ID
+    async function getUserId() {
+      return new Promise((resolve, reject) => {
+        onAuthStateChanged(auth, (user) => {
+          if (user) {
+            resolve(user.uid); // Return the user ID if logged in
+          } else {
+            console.log("User not authenticated.");
+            window.location.href = "login.html";  // Redirect to login page if not authenticated
+            reject("User not authenticated");
+          }
+        });
+      });
+    }
+
+    // Function to render member boxes dynamically
+    async function renderMemberBoxes() {
+      try {
+        const userId = await getUserId();
+        const container = document.getElementById("members-container");
+
+        for (const member of members) {
+          const advanceMoney = await fetchAdvanceMoney(member.id);
+
+          const memberBox = document.createElement("div");
+          memberBox.classList.add("member-box");
+
+          memberBox.innerHTML = `
+            <div class="member-info">
+              <div class="member-img" style="background-image: url(${member.img});"></div>
+              <div>
+                <h3 class="member-name">${member.name}</h3>
+                <p class="unique-id">ID: ${member.id}</p>
+              </div>
+            </div>
+            <div class="right-side">
+              Total Advance: $${advanceMoney}
+            </div>
+          `;
+          container.appendChild(memberBox);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        document.getElementById("members-container").innerHTML = "Please log in to view member details.";
+      }
+    }
+
+    // Call render function to display member boxes
+    renderMemberBoxes();
+  </script>
+
+</body>
+</html>

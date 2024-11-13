@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Owner Login</title>
+  <style>
+    /* General Styling */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .login-container {
+      background-color: white;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .login-container h2 {
+      text-align: center;
+      color: #4CAF50;
+      margin-bottom: 20px;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    .login-button {
+      width: 100%;
+      padding: 12px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .login-button:hover {
+      background-color: #45a049;
+    }
+
+    .error-message {
+      color: red;
+      text-align: center;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h2>Owner Login</h2>
+    <input id="email" type="email" class="input-field" placeholder="Enter Email" required />
+    <input id="password" type="password" class="input-field" placeholder="Enter Password" required />
+    <button id="loginButton" class="login-button">Login</button>
+    <p class="error-message" id="errorMessage"></p>
+  </div>
+
+  <script type="module">
+    // Firebase Imports and Configuration
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+    import { getFirestore } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAmbVdApgwrXfvRpjgXCXXld3_L1JG69Sg",
+      authDomain: "newproject-ec61c.firebaseapp.com",
+      projectId: "newproject-ec61c",
+      storageBucket: "newproject-ec61c.firebasestorage.app",
+      messagingSenderId: "645011924666",
+      appId: "1:645011924666:web:abc631b5c54cdca7930483",
+      measurementId: "G-4YVB0Y6CE7"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // Handle Login
+    document.getElementById('loginButton').addEventListener('click', async () => {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const errorMessageElement = document.getElementById('errorMessage');
+
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        // On successful login, redirect to the advance money page
+        window.location.href = "register-advance.html"; // Update with your actual page URL
+      } catch (error) {
+        errorMessageElement.textContent = "Invalid email or password.";
+      }
+    });
+  </script>
+</body>
+</html>
